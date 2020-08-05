@@ -1,0 +1,36 @@
+@font-face {
+    /* Bariol-Regular-Webfont */
+    font-family: "Bariol-Regular-Web";
+        /* src: url('.assets/fonts/Bariol-Complete-Webfont/Bariol-Regular-Webfont/bariol_regular-webfont.eot'); IE9 Compat Modes */
+    src: 
+        /* url('.assets/fonts/Bariol-Complete-Webfont/Bariol-Regular-Webfont/bariol_regular-webfont.eot?#iefix') format('embedded-opentype'), IE6-IE8 */ 
+        url("./assets/fonts/Bariol-Regular-Webfont/bariol_regular-webfont.woff2") format("woff2"), /* Super Modern Browsers */
+            url("./assets/fonts/Bariol-Regular-Webfont/bariol_regular-webfont.woff") format("woff"), /* Pretty Modern Browsers */
+            url("./assets/fonts/Bariol-Regular-Webfont/bariol_regular-webfont.ttf") format("truetype"); /* Safari, Android, iOS */
+        /* url('.assets/fonts/Bariol-Complete-Webfont/Bariol-Regular-Webfont/bariol_regular-webfont.svg#svgFontName') format('svg'); Legacy iOS */
+}
+
+body {
+    font-family: 'Bariol-Regular-Web' sans-serif;
+
+    background-color: rgb(230, 218, 170);
+    background-image: url("./assets/snowboard.jpg");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.title {
+    font-family: 'Bariol-Regular-Web', sans-serif;
+}
+
+.pure-button {
+    /* auto prefixer will take out this unnecessary prefix */
+    -webkit-border-radius: 1em;
+    border-radius: 1em;
+}
+
+.test {
+    width: 2rem;
+    height: 2rem;
+    background-color: crimson;
+}
