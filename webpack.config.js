@@ -7,6 +7,7 @@ const parts = require("./webpack.parts");
 
 const PATHS = {
     app: path.join(__dirname, "src"),
+    build: path.join(__dirname, "build"),
 };
 
 const commonConfig = merge([
@@ -21,20 +22,46 @@ const commonConfig = merge([
     parts.loadSVGs({
         options: {
             extract: true,
-            spriteFilename: 'spritesheet.svg'
-        }
-    })
+            spriteFilename: "spritesheet.svg",
+        },
+    }),
 ]);
 
 const productionConfig = merge([
     {
-        optimization: {
-          splitChunks: {
-            chunks: "initial",
-          },
+        output: {
+            chunkFilename: "[name].[chunkhash:4].js",
+            filename: "[name].[chunkhash:4].js",
         },
     },
-
+    {
+        optimization: {
+            splitChunks: {
+                chunks: "initial",
+            },
+            // Use a manifest if problems with vendor hashing
+            // runtimeChunk: {
+            //     name: "manifest",
+            // },
+        },
+    }, 
+    {
+        // Create a record file in the root  of the project
+        recordsPath: path.join(__dirname, "records.json"),
+    },
+    // Minify Html?
+    parts.clean(),
+    parts.minifyJS(),
+    parts.minifyCSS({
+        options: {
+            discardComments: {
+                removeAll: true,
+            },
+            // Run cssnano in safe mode to avoid
+            // potentially unsafe transformations.
+            safe: true,
+        },
+    }),
     parts.extractCSS({
         use: ["css-loader", parts.autoprefix()],
     }),
@@ -47,12 +74,13 @@ const productionConfig = merge([
     parts.loadImages({
         options: {
             limit: 105000,
-            name: "[name].[ext]",
+            name: "[name].[hash:4].[ext]",
         },
     }),
     parts.loadJS({ include: PATHS.app }),
     parts.generateSourceMaps({ type: "source-map" }),
-    parts.clean()
+    parts.attachRevision(),
+    // parts.compress()
 ]);
 
 const developmentConfig = merge([

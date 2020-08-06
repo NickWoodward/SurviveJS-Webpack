@@ -1,8 +1,13 @@
-const webpack = require('webpack');
+const webpack = require("webpack");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const PurgecssPlugin = require("purgecss-webpack-plugin");
 const SpriteLoaderPlugin = require("svg-sprite-loader/plugin");
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const GitRevisionPlugin = require("git-revision-webpack-plugin");
+const TerserPlugin = require("terser-webpack-plugin");
+const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const cssnano = require("cssnano");
+const CompressionPlugin = require("compression-webpack-plugin");
 
 exports.devServer = ({ host, port } = {}) => ({
     devServer: {
@@ -29,7 +34,8 @@ exports.loadCSS = ({ include, exclude } = {}) => ({
 exports.extractCSS = ({ include, exclude, use = [] }) => {
     // Extract CSS to a file
     const plugin = new MiniCssExtractPlugin({
-        filename: "[name].css",
+        // Use content hash, not chunkhash (as chunkhash would change with the application, not just the css content)
+        filename: "[name].[contentHash:4].css",
     });
 
     return {
@@ -59,6 +65,7 @@ exports.autoprefix = () => ({
     },
 });
 
+//TODO: optimize images using imagemin-webpack
 exports.loadImages = ({ include, exclude, options } = {}) => ({
     module: {
         rules: [
@@ -99,15 +106,15 @@ exports.loadFonts = ({ include, exclude } = {}) => ({
             {
                 test: /\.(ttf|eot|woff|woff2)$/,
                 use: {
-                  loader: "file-loader",
-                  options: {
-                    name: "./fonts/[name].[ext]",
-                    publicPath: "../" // Take the directory into account
-                  },
+                    loader: "file-loader",
+                    options: {
+                        name: "./fonts/[name].[ext]",
+                        publicPath: "../", // Take the directory into account
+                    },
                 },
-              },
-        ]
-    }
+            },
+        ],
+    },
 });
 
 exports.loadSVGs = ({ include, exclude, options } = {}) => ({
@@ -137,25 +144,60 @@ exports.loadJS = ({ include, exclude }) => ({
                 test: /\.js$/,
                 include,
                 exclude,
-                use: "babel-loader"
-            }
-        ]
-    }
+                use: "babel-loader",
+            },
+        ],
+    },
 });
 
 exports.generateSourceMaps = ({ type }) => ({
-    devtool: type
+    devtool: type,
 
     // Source map option can be set for css/sass/less loaders
     // Css-loader known to have problem with relative paths in imports. Should set output.public path to the server url
 });
 
 exports.disableCodeSplitting = () => ({
+    plugins: [new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 })],
+});
+
+exports.clean = (path) => ({
+    plugins: [new CleanWebpackPlugin()],
+});
+
+exports.attachRevision = () => ({
     plugins: [
-        new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 })
+        new webpack.BannerPlugin({
+            banner: new GitRevisionPlugin().version(),
+        }),
+    ],
+});
+
+exports.minifyJS = () => ({
+    // Terser is used by default in production, but this allows configuration
+    optimization: {
+        minimizer: [
+            new TerserPlugin({
+                sourceMap: true,
+                // test: /** regex */
+                // include
+                // exclude
+                // terserOptions: { https://github.com/terser/terser#minify-options }
+            }),
+        ],
+    },
+});
+
+exports.minifyCSS = ({ options }) => ({
+    plugins: [
+        new OptimizeCssAssetsPlugin({
+            cssProcessor: cssnano,
+            cssProcessorOptions: options,
+            canPrint: false
+        })
     ]
 });
 
-exports.clean = path => ({
-    plugins: [ new CleanWebpackPlugin() ]
+exports.compress = () => ({
+    plugins: [new CompressionPlugin()]
 });

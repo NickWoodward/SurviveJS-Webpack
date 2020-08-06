@@ -1,4 +1,5 @@
 import component from "./component";
+import * as stuff from "./shake";
 import "./main.css";
 import "react";
 import "react-dom";
@@ -11,17 +12,10 @@ import "./assets/svg/sprite.svg";
 import "./assets/svg/css.svg";
 import "./assets/svg/github.svg";
 
+stuff.bake();
+// stuff.shake() 
 
 document.body.appendChild(component());
-
-// document.body.insertAdjacentHTML(
-//     "afterbegin",
-//     `<svg class="test">
-//         <use xlink:href="#sprite-usage"></use>
-//     </svg>
-
-//     `
-// );
 
 document.body.insertAdjacentHTML(
     "beforeend",

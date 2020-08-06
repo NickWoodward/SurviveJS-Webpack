@@ -1,0 +1,1 @@
+{"version":3,"sources":["webpack:///./src/lazy.js"],"names":[],"mappings":";yFAAA,OAAe","file":"2.cad1.js","sourcesContent":["export default \"Hello from Lazy.js\";"],"sourceRoot":""}
